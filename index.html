@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --secondary-color: #2c3e50;
+            --background-color: #f8f9fa;
+            --card-background: #ffffff;
+            --text-color: #333333;
+            --text-light: #666666;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; padding-bottom: 100px; }
+        .header { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; text-align: center; padding: 2rem 1rem; }
+        .logo { font-size: 3rem; margin-bottom: 0.5rem; }
+        .restaurant-name { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .tagline { font-size: 1rem; opacity: 0.9; }
+        .categories-nav { display: flex; overflow-x: auto; gap: 0.5rem; padding: 1rem; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .category-btn { padding: 0.5rem 1rem; border: 2px solid var(--primary-color); background: white; color: var(--primary-color); border-radius: 20px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.3s; font-family: 'Poppins', sans-serif; }
+        .category-btn.active, .category-btn:hover { background: var(--primary-color); color: white; }
+        .menu-container { padding: 1rem; max-width: 1200px; margin: 0 auto; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .menu-item { background: var(--card-background); border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: transform 0.3s; position: relative; }
+        .menu-item:hover { transform: translateY(-5px); }
+        .menu-item.unavailable { opacity: 0.6; }
+        .menu-item.unavailable .menu-item-image { filter: grayscale(100%); }
+        .menu-item-image { width: 100%; height: 200px; object-fit: cover; }
+        .menu-item-content { padding: 1rem; }
+        .menu-item-category { font-size: 0.75rem; color: var(--primary-color); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .menu-item-name { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0; color: var(--secondary-color); }
+        .menu-item-description { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1rem; }
+        .menu-item-footer { display: flex; justify-content: space-between; align-items: center; }
+        .menu-item-price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+        .quantity-controls { display: flex; align-items: center; gap: 0.5rem; }
+        .qty-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--primary-color); background: white; color: var(--primary-color); font-weight: 700; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: 'Poppins', sans-serif; }
+        .qty-btn:hover { background: var(--primary-color); color: white; }
+        .qty-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .qty-number { font-weight: 700; min-width: 24px; text-align: center; }
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--secondary-color); color: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.2); z-index: 1000; transform: translateY(100%); transition: transform 0.3s; }
+        .cart-bar.visible { transform: translateY(0); }
+        .cart-info { display: flex; flex-direction: column; }
+        .cart-count { font-weight: 700; font-size: 1.1rem; }
+        .cart-total { font-size: 0.9rem; opacity: 0.9; }
+        .checkout-btn { background: #25d366; color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 1rem; font-family: 'Poppins', sans-serif; }
+        .checkout-btn:hover { background: #128c7e; }
+        .footer { background: var(--secondary-color); color: white; text-align: center; padding: 2rem 1rem; margin-top: 2rem; }
+        .success-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); z-index: 2000; text-align: center; display: none; width: 90%; max-width: 400px; }
+        .success-message.show { display: block; }
+        .success-message h2 { color: #25d366; margin-bottom: 1rem; }
+        .agotado-badge { position: absolute; top: 10px; right: 10px; background: #e74c3c; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; z-index: 10; }
+        .loading-message { text-align: center; padding: 3rem; color: #666; font-size: 1.1rem; }
+        @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🍽️</div>
+        <h1 class="restaurant-name" id="restaurant-name">Cargando...</h1>
+        <p class="tagline" id="restaurant-tagline">Bienvenido a nuestro menú digital</p>
+    </header>
+
+    <nav class="categories-nav" id="categories-nav">
+        <button class="category-btn active" onclick="filterCategory('todos')">Todos</button>
+    </nav>
+
+    <main class="menu-container">
+        <div id="loading" class="loading-message">Cargando menú...</div>
+        <div id="menu-grid" class="menu-grid"></div>
+    </main>
+
+    <div class="cart-bar" id="cart-bar">
+        <div class="cart-info">
+            <span class="cart-count" id="cart-count">0 productos</span>
+            <span class="cart-total" id="cart-total">Total: $0</span>
+        </div>
+        <button class="checkout-btn" onclick="openCheckout()">Ver pedido 🛒</button>
+    </div>
+
+    <div class="success-message" id="success-message">
+        <h2>✅ ¡Pedido Enviado!</h2>
+        <p>Tu pedido ha sido recibido en la cocina.</p>
+        <button onclick="closeSuccess()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-color); color: white; border: none; border-radius: 20px; cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600;">Cerrar</button>
+    </div>
+
+    <footer class="footer">
+        <p>📍 Dirección del restaurante</p>
+        <p>🕐 Horario de atención</p>
+        <p>📞 Teléfono de contacto</p>
+    </footer>
+
+    <script>
+        // ⚙️ CONFIGURACIÓN DE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8CRid7eqnAuZRNZf6TFsN34NPFM7upCM",
+            authDomain: "menu-digital-demo-3.firebaseapp.com",
+            projectId: "menu-digital-demo-3",
+            storageBucket: "menu-digital-demo-3.firebasestorage.app",
+            messagingSenderId: "549748685456",
+            appId: "1:549748685456:web:8b8d124698c2ee8e9e7615"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        const RESTAURANT_NAME = "Mi Restaurante";
+        let menuData = [];
+        let cart = {};
+        let currentCategory = 'todos';
+
+        // Cargar configuración (colores y nombre)
+        db.collection('config').doc('tema').onSnapshot((doc) => {
+            if (doc.exists) {
+                const config = doc.data();
+                const root = document.documentElement;
+                if (config.primaryColor) root.style.setProperty('--primary-color', config.primaryColor);
+                if (config.secondaryColor) root.style.setProperty('--secondary-color', config.secondaryColor);
+                if (config.backgroundColor) root.style.setProperty('--background-color', config.backgroundColor);
+                if (config.restaurantName) document.getElementById('restaurant-name').textContent = config.restaurantName;
+                if (config.tagline) document.getElementById('restaurant-tagline').textContent = config.tagline;
+            }
+        });
+
+        // Cargar productos desde Firebase
+        db.collection('productos')
+            .where('restaurant', '==', RESTAURANT_NAME)
+            .onSnapshot((snapshot) => {
+                menuData = [];
+                const categories = new Set(['todos']);
+                
+                snapshot.forEach((doc) => {
+                    const product = { id: doc.id, ...doc.data() };
+                    menuData.push(product);
+                    if (product.category) categories.add(product.category);
+                });
+
+                renderCategories(Array.from(categories));
+                document.getElementById('loading').style.display = 'none';
+                renderMenu();
+            });
+
+        function renderCategories(categories) {
+            const nav = document.getElementById('categories-nav');
+            nav.innerHTML = categories.map(cat => 
+                `<button class="category-btn ${cat === currentCategory ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat.charAt(0).toUpperCase() + cat.slice(1)}</button>`
+            ).join('');
+        }
+
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.toLowerCase() === category || (category === 'todos' && btn.textContent.toLowerCase() === 'todos'));
+            });
+            renderMenu();
+        }
+
+        function renderMenu() {
+            const menuGrid = document.getElementById('menu-grid');
+            menuGrid.innerHTML = '';
+            
+            const filteredItems = currentCategory === 'todos' 
+                ? menuData 
+                : menuData.filter(item => item.category === currentCategory);
+            
+            filteredItems.forEach(item => {
+                const qty = cart[item.id] ? cart[item.id].qty : 0;
+                const isUnavailable = !item.available;
+                
+                const menuItem = document.createElement('div');
+                menuItem.className = `menu-item ${isUnavailable ? 'unavailable' : ''}`;
+                menuItem.innerHTML = `
+                    ${isUnavailable ? '<div class="agotado-badge">AGOTADO</div>' : ''}
+                    <img src="${item.image}" alt="${item.name}" class="menu-item-image" onerror="this.src='https://via.placeholder.com/400x300?text=Sin+Imagen'">
+                    <div class="menu-item-content">
+                        <span class="menu-item-category">${item.category}</span>
+                        <h3 class="menu-item-name">${item.name}</h3>
+                        <p class="menu-item-description">${item.description}</p>
+                        <div class="menu-item-footer">
+                            <span class="menu-item-price">$${item.price}</span>
+                            ${isUnavailable 
+                                ? '<span style="color: #e74c3c; font-weight: 600; font-size: 0.9rem;">No disponible</span>'
+                                : `<div class="quantity-controls">
+                                    <button class="qty-btn" onclick="updateCart('${item.id}', -1)">−</button>
+                                    <span class="qty-number" id="qty-${item.id}">${qty}</span>
+                                    <button class="qty-btn" onclick="updateCart('${item.id}', 1)">+</button>
+                                  </div>`
+                            }
+                        </div>
+                    </div>
+                `;
+                menuGrid.appendChild(menuItem);
+            });
+        }
+
+        function updateCart(id, change) {
+            const item = menuData.find(p => p.id === id);
+            if (!item || !item.available) return;
+            
+            if (!cart[id]) cart[id] = { ...item, qty: 0 };
+            cart[id].qty += change;
+            if (cart[id].qty <= 0) delete cart[id];
+            
+            const qtyElement = document.getElementById(`qty-${id}`);
+            if (qtyElement) qtyElement.textContent = cart[id] ? cart[id].qty : 0;
+            
+            updateCartBar();
+        }
+
+        function updateCartBar() {
+            const cartBar = document.getElementById('cart-bar');
+            const cartCount = document.getElementById('cart-count');
+            const cartTotal = document.getElementById('cart-total');
+            const items = Object.values(cart);
+            const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+            const totalPrice = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            if (totalQty > 0) {
+                cartBar.classList.add('visible');
+                cartCount.textContent = `${totalQty} producto${totalQty > 1 ? 's' : ''}`;
+                cartTotal.textContent = `Total: $${totalPrice}`;
+            } else {
+                cartBar.classList.remove('visible');
+            }
+        }
+
+        async function openCheckout() {
+            const items = Object.values(cart);
+            if (items.length === 0) return;
+            
+            const customerName = prompt("¿Cuál es tu nombre?");
+            if (!customerName) return;
+            
+            const tableNumber = prompt("¿Número de mesa o dirección de entrega?");
+            if (!tableNumber) return;
+            
+            const notes = prompt("¿Alguna nota especial? (opcional, presiona Cancelar para omitir)") || "";
+            
+            let total = 0;
+            items.forEach(item => { total += item.price * item.qty; });
+
+            const order = {
+                restaurant: RESTAURANT_NAME,
+                customerName: customerName,
+                tableNumber: tableNumber,
+                notes: notes,
+                items: items.map(item => ({
+                    name: item.name,
+                    quantity: item.qty,
+                    price: item.price,
+                    subtotal: item.price * item.qty
+                })),
+                total: total,
+                status: 'nuevo',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                await db.collection('pedidos').add(order);
+                document.getElementById('success-message').classList.add('show');
+                cart = {};
+                updateCartBar();
+                renderMenu();
+            } catch (error) {
+                alert('Error al enviar el pedido: ' + error.message);
+            }
+        }
+
+        function closeSuccess() {
+            document.getElementById('success-message').classList.remove('show');
+        }
+    </script>
+</body>
+</html>
