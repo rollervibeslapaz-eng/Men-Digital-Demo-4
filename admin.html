@@ -41,7 +41,17 @@
         .btn-delete { background: #e74c3c; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-left: 0.5rem; }
         .btn-edit { background: #3498db; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
         
-        .order-card { background: white; padding: 1.2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #25d366; margin-bottom: 1rem; }
+        /* NUEVO: Cuadrícula para los pedidos */
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .order-card { background: white; padding: 1.2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid #25d366; }
         .order-card.processing { border-left-color: #f39c12; }
         .order-card.completed { border-left-color: #95a5a6; opacity: 0.7; }
         .order-header { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
@@ -58,7 +68,6 @@
         .hidden { display: none !important; }
         .loading { text-align: center; padding: 2rem; color: #666; }
 
-        /* Animación para la notificación */
         @keyframes slideIn {
             from { transform: translateX(400px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -87,41 +96,44 @@
 
         <!-- TAB PEDIDOS -->
         <div id="tab-pedidos" class="tab-content active">
-            <h3 style="margin-bottom: 1rem;">Pedidos Recientes</h3>
-            <!-- ESTADÍSTICAS -->
-<!-- ESTADÍSTICAS -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2rem; font-weight: 700; color: #ff6b35; margin-bottom: 0.3rem;" id="stat-new">0</div>
-        <div style="color: #666; font-size: 0.85rem;">Nuevos</div>
-    </div>
-    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2rem; font-weight: 700; color: #f39c12; margin-bottom: 0.3rem;" id="stat-processing">0</div>
-        <div style="color: #666; font-size: 0.85rem;">En proceso</div>
-    </div>
-    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2rem; font-weight: 700; color: #25d366; margin-bottom: 0.3rem;" id="stat-sales">$0</div>
-        <div style="color: #666; font-size: 0.85rem;">Ventas Hoy</div>
-    </div>
-    <div onclick="openHistoricalModal()" style="background: #2c3e50; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-    <div style="font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 0.3rem;" id="stat-historical">$0</div>
-    <div style="color: #cbd5e1; font-size: 0.85rem;">Ventas Históricas 👆</div>
-</div>
-            <div id="orders-container"></div>
+            <!-- ESTADÍSTICAS (Centradas y con ancho máximo) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 0 auto 2rem auto; max-width: 1000px;">
+                <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #ff6b35; margin-bottom: 0.3rem;" id="stat-new">0</div>
+                    <div style="color: #666; font-size: 0.85rem;">Nuevos</div>
+                </div>
+                <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #f39c12; margin-bottom: 0.3rem;" id="stat-processing">0</div>
+                    <div style="color: #666; font-size: 0.85rem;">En proceso</div>
+                </div>
+                <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <div style="font-size: 2rem; font-weight: 700; color: #25d366; margin-bottom: 0.3rem;" id="stat-sales">$0</div>
+                    <div style="color: #666; font-size: 0.85rem;">Ventas Hoy</div>
+                </div>
+                <div onclick="openHistoricalModal()" style="background: #2c3e50; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <div style="font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 0.3rem;" id="stat-historical">$0</div>
+                    <div style="color: #cbd5e1; font-size: 0.85rem;">Ventas Históricas 👆</div>
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 1rem; text-align: center; color: #2c3e50;">Pedidos Recientes</h3>
+            
+            <!-- CONTENEDOR DE PEDIDOS EN CUADRÍCULA -->
+            <div id="orders-container" class="orders-grid"></div>
         </div>
 
         <!-- TAB PRODUCTOS -->
         <div id="tab-productos" class="tab-content">
-            <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; max-width: 800px; margin-left: auto; margin-right: auto;">
                 <h3 style="margin-bottom: 1rem;">Agregar / Editar Producto</h3>
                 <input type="hidden" id="edit-product-id">
                 <div class="form-group">
                     <label>Nombre del producto</label>
-                    <input type="text" id="prod-name" placeholder="Ej: Agrega el nombre del producto">
+                    <input type="text" id="prod-name" placeholder="Ej: Hamburguesa Clásica">
                 </div>
                 <div class="form-group">
                     <label>Descripción</label>
-                    <textarea id="prod-desc" rows="2" placeholder="Ej: Descripción corta del producto"></textarea>
+                    <textarea id="prod-desc" rows="2" placeholder="Ej: Carne 150g, lechuga, tomate"></textarea>
                 </div>
                 <div style="display: flex; gap: 1rem;">
                     <div class="form-group" style="flex: 1;">
@@ -130,7 +142,7 @@
                     </div>
                     <div class="form-group" style="flex: 1;">
                         <label>Categoría</label>
-                        <input type="text" id="prod-category" placeholder="Ej: Añade una categoría">
+                        <input type="text" id="prod-category" placeholder="Ej: hamburguesas">
                     </div>
                 </div>
                 <div class="form-group">
@@ -148,13 +160,13 @@
                 <button class="btn-save" id="btn-cancel-edit" onclick="cancelEdit()" style="background: #95a5a6; margin-top: 0.5rem; display: none;">Cancelar Edición</button>
             </div>
             
-            <h3 style="margin-bottom: 1rem;">Mis Productos</h3>
-            <div id="products-container"></div>
+            <h3 style="margin-bottom: 1rem; text-align: center;">Mis Productos</h3>
+            <div id="products-container" style="max-width: 800px; margin: 0 auto;"></div>
         </div>
 
         <!-- TAB CONFIGURACIÓN -->
         <div id="tab-config" class="tab-content">
-            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px; max-width: 800px; margin: 0 auto;">
                 <h3 style="margin-bottom: 1rem;">Apariencia del Menú</h3>
                 
                 <div class="form-group">
@@ -218,28 +230,30 @@
             </div>
         </div>
     </div>
+
     <!-- MODAL VENTAS HISTÓRICAS -->
-<div id="historical-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9998; align-items: center; justify-content: center; padding: 1rem;">
-    <div style="background: white; border-radius: 15px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 2rem; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-        <button onclick="closeHistoricalModal()" style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 700;">✕</button>
-        
-        <h2 style="margin-bottom: 0.5rem; color: #2c3e50;">📊 Ventas Históricas</h2>
-        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">Desglose de ventas por día</p>
-        
-        <div style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <div style="font-size: 0.85rem; color: #666;">Total Histórico</div>
-                <div style="font-size: 1.8rem; font-weight: 700; color: #25d366;" id="modal-total">$0</div>
+    <div id="historical-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9998; align-items: center; justify-content: center; padding: 1rem;">
+        <div style="background: white; border-radius: 15px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; padding: 2rem; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <button onclick="closeHistoricalModal()" style="position: absolute; top: 15px; right: 15px; background: #e74c3c; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; font-weight: 700;">✕</button>
+            
+            <h2 style="margin-bottom: 0.5rem; color: #2c3e50;">📊 Ventas Históricas</h2>
+            <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.9rem;">Desglose de ventas por día</p>
+            
+            <div style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.85rem; color: #666;">Total Histórico</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; color: #25d366;" id="modal-total">$0</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.85rem; color: #666;">Total Pedidos</div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #ff6b35;" id="modal-count">0</div>
+                </div>
             </div>
-            <div style="text-align: right;">
-                <div style="font-size: 0.85rem; color: #666;">Total Pedidos</div>
-                <div style="font-size: 1.5rem; font-weight: 700; color: #ff6b35;" id="modal-count">0</div>
-            </div>
+            
+            <div id="daily-breakdown"></div>
         </div>
-        
-        <div id="daily-breakdown"></div>
     </div>
-</div>
+
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -271,7 +285,6 @@
         let audioContext = null;
         let hasInteracted = false;
 
-        // --- TRUCO PARA DESBLOQUEAR AUDIO EN NAVEGADORES ---
         document.addEventListener('click', () => {
             if (!hasInteracted) {
                 if (!audioContext) {
@@ -284,12 +297,10 @@
             }
         }, { once: true });
 
-        // --- AUTENTICACIÓN ---
         function checkPassword() {
             if (document.getElementById('password-input').value === ADMIN_PASSWORD) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
-                // Forzar interacción para el audio al iniciar sesión
                 if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 loadConfig();
                 loadProducts();
@@ -307,29 +318,21 @@
             document.getElementById(`tab-${tab}`).classList.add('active');
         }
 
-        // --- SISTEMA DE NOTIFICACIÓN Y SONIDO ---
         function playNotificationSound() {
             try {
                 if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioContext.state === 'suspended') audioContext.resume();
-
                 const oscillator = audioContext.createOscillator();
                 const gainNode = audioContext.createGain();
-                
                 oscillator.connect(gainNode);
                 gainNode.connect(audioContext.destination);
-                
-                // Sonido de "ding-ding" ascendente
-                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // Do
-                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.15); // Mi
-                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // Sol
-                
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.15);
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3);
                 gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
                 gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
-                
                 oscillator.start(audioContext.currentTime);
                 oscillator.stop(audioContext.currentTime + 0.6);
-                
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             } catch (e) { console.log('Sonido no disponible:', e); }
         }
@@ -364,7 +367,6 @@
             }, 8000);
         }
 
-        // --- CONFIGURACIÓN ---
         function loadConfig() {
             db.collection('config').doc('tema').onSnapshot((doc) => {
                 if (doc.exists) {
@@ -405,7 +407,6 @@
             btn.disabled = true;
             const fileInput = document.getElementById('cfg-logo-file');
             let logoUrl = document.getElementById('cfg-logo-url').value;
-
             try {
                 if (fileInput.files.length > 0) {
                     logoUrl = await uploadToCloudinary(fileInput.files[0]);
@@ -422,7 +423,6 @@
                     phone: document.getElementById('cfg-phone').value,
                     logo: logoUrl
                 }, { merge: true });
-                
                 btn.textContent = '💾 Guardar Toda la Configuración';
                 btn.disabled = false;
                 alert('✅ Configuración guardada. El menú se actualiza al instante.');
@@ -434,7 +434,6 @@
             }
         }
 
-        // --- CLOUDINARY UPLOAD ---
         async function uploadToCloudinary(file) {
             const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
             const formData = new FormData();
@@ -446,7 +445,6 @@
             return data.secure_url;
         }
 
-        // --- PRODUCTOS ---
         function loadProducts() {
             db.collection('productos').where('restaurant', '==', RESTAURANT_NAME).onSnapshot((snapshot) => {
                 products = [];
@@ -580,7 +578,6 @@
             }
         }
 
-        // --- PEDIDOS ---
         function loadOrders() {
             db.collection('pedidos').where('restaurant', '==', RESTAURANT_NAME).orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
                 const previousNewCount = orders.filter(o => o.status === 'nuevo').length;
@@ -588,7 +585,6 @@
                 snapshot.forEach((doc) => orders.push({ id: doc.id, ...doc.data() }));
                 renderOrders();
                 
-                // Detectar si llegaron pedidos nuevos
                 const currentNewCount = orders.filter(o => o.status === 'nuevo').length;
                 if (currentNewCount > previousNewCount && previousNewCount >= 0) {
                     showNewOrderNotification(currentNewCount);
@@ -598,7 +594,7 @@
 
         function renderOrders() {
             const container = document.getElementById('orders-container');
-            container.innerHTML = orders.length === 0 ? '<p class="loading">No hay pedidos aún.</p>' : '';
+            container.innerHTML = orders.length === 0 ? '<p class="loading" style="grid-column: 1 / -1;">No hay pedidos aún.</p>' : '';
             
             orders.forEach(o => {
                 const time = o.timestamp ? o.timestamp.toDate().toLocaleString('es-MX', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'}) : 'Recién';
@@ -627,102 +623,95 @@
             });
             updateStats();
         }
-  function updateStats() {
-    const newOrders = orders.filter(o => o.status === 'nuevo');
-    const processingOrders = orders.filter(o => o.status === 'processing');
-    
-    // 1. Calcular ventas de hoy
-    const today = new Date().toDateString();
-    const todayOrders = orders.filter(o => {
-        if (!o.timestamp) return false;
-        const orderDate = o.timestamp.toDate().toDateString();
-        return orderDate === today;
-    });
-    const totalSalesToday = todayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
-    
-    // 2. Calcular ventas históricas (suma de TODOS los pedidos)
-    const totalHistoricalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
-    
-    // 3. Actualizar la pantalla con formato de moneda
-    document.getElementById('stat-new').textContent = newOrders.length;
-    document.getElementById('stat-processing').textContent = processingOrders.length;
-    document.getElementById('stat-sales').textContent = '$' + totalSalesToday.toLocaleString('es-MX');
-    document.getElementById('stat-historical').textContent = '$' + totalHistoricalSales.toLocaleString('es-MX');
-}
-        function openHistoricalModal() {
-    const modal = document.getElementById('historical-modal');
-    modal.style.display = 'flex';
-    
-    // Calcular totales
-    const totalHistorical = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-    document.getElementById('modal-total').textContent = '$' + totalHistorical.toLocaleString('es-MX');
-    document.getElementById('modal-count').textContent = orders.length;
-    
-    // Agrupar ventas por día
-    const dailySales = {};
-    orders.forEach(order => {
-        if (!order.timestamp) return;
-        const date = order.timestamp.toDate();
-        const dateKey = date.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        const timeKey = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-        
-        if (!dailySales[dateKey]) {
-            dailySales[dateKey] = { total: 0, orders: [], date: date };
+
+        function updateStats() {
+            const newOrders = orders.filter(o => o.status === 'nuevo');
+            const processingOrders = orders.filter(o => o.status === 'processing');
+            
+            const today = new Date().toDateString();
+            const todayOrders = orders.filter(o => {
+                if (!o.timestamp) return false;
+                const orderDate = o.timestamp.toDate().toDateString();
+                return orderDate === today;
+            });
+            const totalSalesToday = todayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+            const totalHistoricalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+            
+            document.getElementById('stat-new').textContent = newOrders.length;
+            document.getElementById('stat-processing').textContent = processingOrders.length;
+            document.getElementById('stat-sales').textContent = '$' + totalSalesToday.toLocaleString('es-MX');
+            document.getElementById('stat-historical').textContent = '$' + totalHistoricalSales.toLocaleString('es-MX');
         }
-        dailySales[dateKey].total += order.total || 0;
-        dailySales[dateKey].orders.push({ time: timeKey, customer: order.customerName, total: order.total, status: order.status });
-    });
-    
-    // Ordenar por fecha (más reciente primero)
-    const sortedDates = Object.keys(dailySales).sort((a, b) => {
-        return dailySales[b].date - dailySales[a].date;
-    });
-    
-    // Renderizar desglose
-    const container = document.getElementById('daily-breakdown');
-    container.innerHTML = '';
-    
-    if (sortedDates.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No hay ventas registradas aún.</p>';
-        return;
-    }
-    
-    sortedDates.forEach(dateKey => {
-        const dayData = dailySales[dateKey];
-        const dayDiv = document.createElement('div');
-        dayDiv.style.cssText = 'background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #ff6b35;';
-        
-        const ordersHTML = dayData.orders.map(o => `
-            <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem;">
-                <span>🕐 ${o.time} - ${o.customer}</span>
-                <span style="font-weight: 600; color: #25d366;">$${o.total}</span>
-            </div>
-        `).join('');
-        
-        dayDiv.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                <h4 style="text-transform: capitalize; color: #2c3e50; margin: 0;"> ${dateKey}</h4>
-                <span style="background: #25d366; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">$${dayData.total.toLocaleString('es-MX')}</span>
-            </div>
-            <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">${dayData.orders.length} pedido${dayData.orders.length > 1 ? 's' : ''}</div>
-            ${ordersHTML}
-        `;
-        
-        container.appendChild(dayDiv);
-    });
-}
 
-function closeHistoricalModal() {
-    document.getElementById('historical-modal').style.display = 'none';
-}
+        function openHistoricalModal() {
+            const modal = document.getElementById('historical-modal');
+            modal.style.display = 'flex';
+            
+            const totalHistorical = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+            document.getElementById('modal-total').textContent = '$' + totalHistorical.toLocaleString('es-MX');
+            document.getElementById('modal-count').textContent = orders.length;
+            
+            const dailySales = {};
+            orders.forEach(order => {
+                if (!order.timestamp) return;
+                const date = order.timestamp.toDate();
+                const dateKey = date.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                const timeKey = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+                
+                if (!dailySales[dateKey]) {
+                    dailySales[dateKey] = { total: 0, orders: [], date: date };
+                }
+                dailySales[dateKey].total += order.total || 0;
+                dailySales[dateKey].orders.push({ time: timeKey, customer: order.customerName, total: order.total, status: order.status });
+            });
+            
+            const sortedDates = Object.keys(dailySales).sort((a, b) => {
+                return dailySales[b].date - dailySales[a].date;
+            });
+            
+            const container = document.getElementById('daily-breakdown');
+            container.innerHTML = '';
+            
+            if (sortedDates.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No hay ventas registradas aún.</p>';
+                return;
+            }
+            
+            sortedDates.forEach(dateKey => {
+                const dayData = dailySales[dateKey];
+                const dayDiv = document.createElement('div');
+                dayDiv.style.cssText = 'background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #ff6b35;';
+                
+                const ordersHTML = dayData.orders.map(o => `
+                    <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem;">
+                        <span>🕐 ${o.time} - ${o.customer}</span>
+                        <span style="font-weight: 600; color: #25d366;">$${o.total}</span>
+                    </div>
+                `).join('');
+                
+                dayDiv.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <h4 style="text-transform: capitalize; color: #2c3e50; margin: 0;">📅 ${dateKey}</h4>
+                        <span style="background: #25d366; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">$${dayData.total.toLocaleString('es-MX')}</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">${dayData.orders.length} pedido${dayData.orders.length > 1 ? 's' : ''}</div>
+                    ${ordersHTML}
+                `;
+                container.appendChild(dayDiv);
+            });
+        }
 
-// Cerrar modal al hacer clic fuera de él
-document.addEventListener('click', function(e) {
-    const modal = document.getElementById('historical-modal');
-    if (e.target === modal) {
-        closeHistoricalModal();
-    }
-});
+        function closeHistoricalModal() {
+            document.getElementById('historical-modal').style.display = 'none';
+        }
+
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('historical-modal');
+            if (e.target === modal) {
+                closeHistoricalModal();
+            }
+        });
+
         async function updateOrderStatus(id, status) {
             await db.collection('pedidos').doc(id).update({ status });
         }
