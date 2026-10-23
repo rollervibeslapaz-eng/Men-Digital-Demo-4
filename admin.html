@@ -89,18 +89,23 @@
         <div id="tab-pedidos" class="tab-content active">
             <h3 style="margin-bottom: 1rem;">Pedidos Recientes</h3>
             <!-- ESTADÍSTICAS -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-    <div style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #ff6b35; margin-bottom: 0.3rem;" id="stat-new">0</div>
-        <div style="color: #666; font-size: 0.9rem;">Nuevos</div>
+<!-- ESTADÍSTICAS -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 2rem; font-weight: 700; color: #ff6b35; margin-bottom: 0.3rem;" id="stat-new">0</div>
+        <div style="color: #666; font-size: 0.85rem;">Nuevos</div>
     </div>
-    <div style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #f39c12; margin-bottom: 0.3rem;" id="stat-processing">0</div>
-        <div style="color: #666; font-size: 0.9rem;">En proceso</div>
+    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 2rem; font-weight: 700; color: #f39c12; margin-bottom: 0.3rem;" id="stat-processing">0</div>
+        <div style="color: #666; font-size: 0.85rem;">En proceso</div>
     </div>
-    <div style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-        <div style="font-size: 2.5rem; font-weight: 700; color: #25d366; margin-bottom: 0.3rem;" id="stat-sales">$0</div>
-        <div style="color: #666; font-size: 0.9rem;">Ventas hoy</div>
+    <div style="background: white; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 2rem; font-weight: 700; color: #25d366; margin-bottom: 0.3rem;" id="stat-sales">$0</div>
+        <div style="color: #666; font-size: 0.85rem;">Ventas Hoy</div>
+    </div>
+    <div style="background: #2c3e50; padding: 1.2rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 2rem; font-weight: 700; color: #ffffff; margin-bottom: 0.3rem;" id="stat-historical">$0</div>
+        <div style="color: #cbd5e1; font-size: 0.85rem;">Ventas Históricas</div>
     </div>
 </div>
             <div id="orders-container"></div>
@@ -602,24 +607,27 @@
             });
             updateStats();
         }
-        function updateStats() {
+  function updateStats() {
     const newOrders = orders.filter(o => o.status === 'nuevo');
     const processingOrders = orders.filter(o => o.status === 'processing');
     
-    // Calcular ventas de hoy
+    // 1. Calcular ventas de hoy
     const today = new Date().toDateString();
     const todayOrders = orders.filter(o => {
         if (!o.timestamp) return false;
         const orderDate = o.timestamp.toDate().toDateString();
         return orderDate === today;
     });
+    const totalSalesToday = todayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
     
-    const totalSales = todayOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    // 2. Calcular ventas históricas (suma de TODOS los pedidos)
+    const totalHistoricalSales = orders.reduce((sum, order) => sum + (order.total || 0), 0);
     
-    // Actualizar el DOM
+    // 3. Actualizar la pantalla con formato de moneda
     document.getElementById('stat-new').textContent = newOrders.length;
     document.getElementById('stat-processing').textContent = processingOrders.length;
-    document.getElementById('stat-sales').textContent = '$' + totalSales;
+    document.getElementById('stat-sales').textContent = '$' + totalSalesToday.toLocaleString('es-MX');
+    document.getElementById('stat-historical').textContent = '$' + totalHistoricalSales.toLocaleString('es-MX');
 }
         async function updateOrderStatus(id, status) {
             await db.collection('pedidos').doc(id).update({ status });
