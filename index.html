@@ -58,12 +58,62 @@
         .loading-message { text-align: center; padding: 3rem; color: #666; font-size: 1.1rem; }
         @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
     </style>
-        <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ff6b35">
+            <meta name="theme-color" content="#ff6b35">
     <script>
+        // Registrar Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
         }
+
+        // Generar manifest dinámico con el logo del cliente
+        async function loadDynamicManifest() {
+            try {
+                const configDoc = await db.collection('config').doc('tema').get();
+                let iconUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23ff6b35' rx='80'/%3E%3Ctext x='256' y='340' font-size='320' text-anchor='middle' fill='white' font-family='Arial'%3E️%3C/text%3E%3C/svg%3E";
+                let themeColor = "#ff6b35";
+                let appName = "Menú Digital";
+                
+                if (configDoc.exists) {
+                    const data = configDoc.data();
+                    if (data.logo) iconUrl = data.logo;
+                    if (data.primaryColor) themeColor = data.primaryColor;
+                    if (data.restaurantName) appName = data.restaurantName;
+                }
+
+                const manifest = {
+                    name: appName,
+                    short_name: appName,
+                    description: "Menú digital de " + appName,
+                    start_url: "./index.html",
+                    display: "standalone",
+                    background_color: "#ffffff",
+                    theme_color: themeColor,
+                    orientation: "any",
+                    icons: [
+                        { src: iconUrl, sizes: "192x192", type: "image/png", purpose: "any maskable" },
+                        { src: iconUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" }
+                    ]
+                };
+
+                const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                const manifestURL = URL.createObjectURL(blob);
+                
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = manifestURL;
+                document.head.appendChild(link);
+
+                // Actualizar color del tema en la barra del navegador
+                document.querySelector('meta[name="theme-color"]').content = themeColor;
+            } catch (e) {
+                console.log('Error al cargar manifest dinámico:', e);
+            }
+        }
+
+        // Esperar a que Firebase esté listo y cargar el manifest
+        window.addEventListener('load', () => {
+            setTimeout(loadDynamicManifest, 500);
+        });
     </script>
 </head>
 <body>
