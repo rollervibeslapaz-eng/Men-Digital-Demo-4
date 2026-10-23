@@ -128,35 +128,71 @@
         </div>
 
         <!-- TAB CONFIGURACIÓN -->
-        <div id="tab-config" class="tab-content">
-            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
-                <h3 style="margin-bottom: 1rem;">Apariencia del Menú</h3>
-                <div class="form-group">
-                    <label>Nombre del Restaurante</label>
-                    <input type="text" id="cfg-name" placeholder="Mi Restaurante">
-                </div>
-                <div class="form-group">
-                    <label>Eslogan / Subtítulo</label>
-                    <input type="text" id="cfg-tagline" placeholder="Los mejores platillos de la ciudad">
-                </div>
-                <div style="display: flex; gap: 1rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Color Principal</label>
-                        <input type="color" id="cfg-primary" value="#ff6b35">
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Color Secundario</label>
-                        <input type="color" id="cfg-secondary" value="#2c3e50">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Color de Fondo</label>
-                    <input type="color" id="cfg-background" value="#f8f9fa">
-                </div>
-                <button class="btn-save" onclick="saveConfig()">Guardar Configuración</button>
+        <!-- TAB CONFIGURACIÓN -->
+<div id="tab-config" class="tab-content">
+    <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+        <h3 style="margin-bottom: 1rem;">Apariencia del Menú</h3>
+        
+        <div class="form-group">
+            <label>Logo del Restaurante (imagen)</label>
+            <input type="file" id="cfg-logo-file" accept="image/*">
+            <img id="cfg-logo-preview" style="max-width: 120px; margin-top: 0.5rem; border-radius: 8px; display: none; background: #eee; padding: 5px;">
+            <input type="hidden" id="cfg-logo-url">
+            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">Recomendado: imagen cuadrada, fondo transparente (PNG)</p>
+        </div>
+
+        <div class="form-group">
+            <label>Emoji/Ícono del header (opcional)</label>
+            <input type="text" id="cfg-emoji" placeholder="Ej: 🍔, 🍕, ☕" maxlength="4">
+        </div>
+
+        <div class="form-group">
+            <label>Nombre del Restaurante</label>
+            <input type="text" id="cfg-name" placeholder="Mi Restaurante">
+        </div>
+
+        <div class="form-group">
+            <label>Eslogan / Subtítulo</label>
+            <input type="text" id="cfg-tagline" placeholder="Los mejores platillos de la ciudad">
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+                <label>Color Principal</label>
+                <input type="color" id="cfg-primary" value="#ff6b35">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Color Secundario</label>
+                <input type="color" id="cfg-secondary" value="#2c3e50">
             </div>
         </div>
+
+        <div class="form-group">
+            <label>Color de Fondo</label>
+            <input type="color" id="cfg-background" value="#f8f9fa">
+        </div>
+
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+        <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
+
+        <div class="form-group">
+            <label>Dirección</label>
+            <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #123, Ciudad">
+        </div>
+
+        <div class="form-group">
+            <label>Horario</label>
+            <input type="text" id="cfg-hours" placeholder="Ej: Lun-Dom: 12:00 - 22:00">
+        </div>
+
+        <div class="form-group">
+            <label>Teléfono / WhatsApp</label>
+            <input type="text" id="cfg-phone" placeholder="Ej: 61 2443 3992">
+        </div>
+
+        <button class="btn-save" onclick="saveConfig()">💾 Guardar Toda la Configuración</button>
     </div>
+</div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -210,36 +246,75 @@
 
         // --- CONFIGURACIÓN ---
         function loadConfig() {
-            db.collection('config').doc('tema').onSnapshot((doc) => {
-                if (doc.exists) {
-                    const data = doc.data();
-                    document.getElementById('cfg-name').value = data.restaurantName || '';
-                    document.getElementById('cfg-tagline').value = data.tagline || '';
-                    document.getElementById('cfg-primary').value = data.primaryColor || '#ff6b35';
-                    document.getElementById('cfg-secondary').value = data.secondaryColor || '#2c3e50';
-                    document.getElementById('cfg-background').value = data.backgroundColor || '#f8f9fa';
-                }
-            });
+    db.collection('config').doc('tema').onSnapshot((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            document.getElementById('cfg-name').value = data.restaurantName || '';
+            document.getElementById('cfg-tagline').value = data.tagline || '';
+            document.getElementById('cfg-emoji').value = data.emoji || '🍽️';
+            document.getElementById('cfg-primary').value = data.primaryColor || '#ff6b35';
+            document.getElementById('cfg-secondary').value = data.secondaryColor || '#2c3e50';
+            document.getElementById('cfg-background').value = data.backgroundColor || '#f8f9fa';
+            document.getElementById('cfg-address').value = data.address || '';
+            document.getElementById('cfg-hours').value = data.hours || '';
+            document.getElementById('cfg-phone').value = data.phone || '';
+            document.getElementById('cfg-logo-url').value = data.logo || '';
+            
+            if (data.logo) {
+                document.getElementById('cfg-logo-preview').src = data.logo;
+                document.getElementById('cfg-logo-preview').style.display = 'block';
+            }
+        }
+    });
+}
+document.getElementById('cfg-logo-file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('cfg-logo-preview').src = e.target.result;
+            document.getElementById('cfg-logo-preview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+async function saveConfig() {
+    const btn = event.target;
+    btn.textContent = 'Guardando...';
+    btn.disabled = true;
+    
+    const fileInput = document.getElementById('cfg-logo-file');
+    let logoUrl = document.getElementById('cfg-logo-url').value;
+
+    try {
+        // Subir logo si hay uno nuevo
+        if (fileInput.files.length > 0) {
+            logoUrl = await uploadToCloudinary(fileInput.files[0]);
         }
 
-        async function saveConfig() {
-            const btn = event.target;
-            btn.textContent = 'Guardando...';
-            btn.disabled = true;
-            
-            await db.collection('config').doc('tema').set({
-                restaurantName: document.getElementById('cfg-name').value,
-                tagline: document.getElementById('cfg-tagline').value,
-                primaryColor: document.getElementById('cfg-primary').value,
-                secondaryColor: document.getElementById('cfg-secondary').value,
-                backgroundColor: document.getElementById('cfg-background').value
-            });
-            
-            btn.textContent = 'Guardar Configuración';
-            btn.disabled = false;
-            alert('✅ Configuración guardada. El menú se actualiza al instante.');
-        }
-
+        await db.collection('config').doc('tema').set({
+            restaurantName: document.getElementById('cfg-name').value,
+            tagline: document.getElementById('cfg-tagline').value,
+            emoji: document.getElementById('cfg-emoji').value || '🍽️',
+            primaryColor: document.getElementById('cfg-primary').value,
+            secondaryColor: document.getElementById('cfg-secondary').value,
+            backgroundColor: document.getElementById('cfg-background').value,
+            address: document.getElementById('cfg-address').value,
+            hours: document.getElementById('cfg-hours').value,
+            phone: document.getElementById('cfg-phone').value,
+            logo: logoUrl
+        }, { merge: true });
+        
+        btn.textContent = '💾 Guardar Toda la Configuración';
+        btn.disabled = false;
+        alert('✅ Configuración guardada. El menú se actualiza al instante.');
+    } catch (error) {
+        console.error(error);
+        btn.textContent = '💾 Guardar Toda la Configuración';
+        btn.disabled = false;
+        alert('Error al guardar: ' + error.message);
+    }
+}
         // --- CLOUDINARY UPLOAD ---
         async function uploadToCloudinary(file) {
             const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
