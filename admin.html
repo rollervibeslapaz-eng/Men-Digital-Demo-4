@@ -644,62 +644,94 @@
         }
 
         function openHistoricalModal() {
-            const modal = document.getElementById('historical-modal');
-            modal.style.display = 'flex';
-            
-            const totalHistorical = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-            document.getElementById('modal-total').textContent = '$' + totalHistorical.toLocaleString('es-MX');
-            document.getElementById('modal-count').textContent = orders.length;
-            
-            const dailySales = {};
-            orders.forEach(order => {
-                if (!order.timestamp) return;
-                const date = order.timestamp.toDate();
-                const dateKey = date.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-                const timeKey = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-                
-                if (!dailySales[dateKey]) {
-                    dailySales[dateKey] = { total: 0, orders: [], date: date };
-                }
-                dailySales[dateKey].total += order.total || 0;
-                dailySales[dateKey].orders.push({ time: timeKey, customer: order.customerName, total: order.total, status: order.status });
-            });
-            
-            const sortedDates = Object.keys(dailySales).sort((a, b) => {
-                return dailySales[b].date - dailySales[a].date;
-            });
-            
-            const container = document.getElementById('daily-breakdown');
-            container.innerHTML = '';
-            
-            if (sortedDates.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No hay ventas registradas aún.</p>';
-                return;
-            }
-            
-            sortedDates.forEach(dateKey => {
-                const dayData = dailySales[dateKey];
-                const dayDiv = document.createElement('div');
-                dayDiv.style.cssText = 'background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #ff6b35;';
-                
-                const ordersHTML = dayData.orders.map(o => `
-                    <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem;">
-                        <span>🕐 ${o.time} - ${o.customer}</span>
-                        <span style="font-weight: 600; color: #25d366;">$${o.total}</span>
-                    </div>
-                `).join('');
-                
-                dayDiv.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <h4 style="text-transform: capitalize; color: #2c3e50; margin: 0;">📅 ${dateKey}</h4>
-                        <span style="background: #25d366; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">$${dayData.total.toLocaleString('es-MX')}</span>
-                    </div>
-                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">${dayData.orders.length} pedido${dayData.orders.length > 1 ? 's' : ''}</div>
-                    ${ordersHTML}
-                `;
-                container.appendChild(dayDiv);
-            });
+    const modal = document.getElementById('historical-modal');
+    modal.style.display = 'flex';
+    
+    // Calcular totales
+    const totalHistorical = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+    document.getElementById('modal-total').textContent = '$' + totalHistorical.toLocaleString('es-MX');
+    document.getElementById('modal-count').textContent = orders.length;
+    
+    // Agrupar ventas por día (CORREGIDO PARA ZONA HORARIA)
+    const dailySales = {};
+    
+    orders.forEach(order => {
+        if (!order.timestamp) return;
+        
+        // Obtener la fecha local correctamente
+        const date = order.timestamp.toDate();
+        
+        // Crear clave consistente usando solo día/mes/año (sin hora)
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const dateKey = `${year}-${month}-${day}`; // Formato consistente: 2026-10-23
+        
+        // Formato para mostrar: "Viernes, 23 De Octubre De 2026"
+        const displayDate = date.toLocaleDateString('es-MX', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        const timeKey = date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        
+        if (!dailySales[dateKey]) {
+            dailySales[dateKey] = { 
+                total: 0, 
+                orders: [], 
+                date: date,
+                displayDate: displayDate 
+            };
         }
+        dailySales[dateKey].total += order.total || 0;
+        dailySales[dateKey].orders.push({ 
+            time: timeKey, 
+            customer: order.customerName, 
+            total: order.total, 
+            status: order.status 
+        });
+    });
+    
+    // Ordenar por fecha (más reciente primero)
+    const sortedDates = Object.keys(dailySales).sort((a, b) => {
+        return new Date(b) - new Date(a);
+    });
+    
+    // Renderizar desglose
+    const container = document.getElementById('daily-breakdown');
+    container.innerHTML = '';
+    
+    if (sortedDates.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No hay ventas registradas aún.</p>';
+        return;
+    }
+    
+    sortedDates.forEach(dateKey => {
+        const dayData = dailySales[dateKey];
+        const dayDiv = document.createElement('div');
+        dayDiv.style.cssText = 'background: #f8f9fa; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #ff6b35;';
+        
+        const ordersHTML = dayData.orders.map(o => `
+            <div style="display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #e5e7eb; font-size: 0.85rem;">
+                <span>🕐 ${o.time} - ${o.customer}</span>
+                <span style="font-weight: 600; color: #25d366;">$${o.total}</span>
+            </div>
+        `).join('');
+        
+        dayDiv.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h4 style="text-transform: capitalize; color: #2c3e50; margin: 0;"> ${dayData.displayDate}</h4>
+                <span style="background: #25d366; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">$${dayData.total.toLocaleString('es-MX')}</span>
+            </div>
+            <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">${dayData.orders.length} pedido${dayData.orders.length > 1 ? 's' : ''}</div>
+            ${ordersHTML}
+        `;
+        
+        container.appendChild(dayDiv);
+    });
+}
 
         function closeHistoricalModal() {
             document.getElementById('historical-modal').style.display = 'none';
