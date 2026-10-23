@@ -61,10 +61,10 @@
 </head>
 <body>
     <header class="header">
-        <div class="logo">🍽️</div>
-        <h1 class="restaurant-name" id="restaurant-name">Cargando...</h1>
-        <p class="tagline" id="restaurant-tagline">Bienvenido a nuestro menú digital</p>
-    </header>
+    <div class="logo" id="restaurant-logo">️</div>
+    <h1 class="restaurant-name" id="restaurant-name">Cargando...</h1>
+    <p class="tagline" id="restaurant-tagline">Bienvenido a nuestro menú digital</p>
+</header>
 
     <nav class="categories-nav" id="categories-nav">
         <button class="category-btn active" onclick="filterCategory('todos')">Todos</button>
@@ -90,10 +90,10 @@
     </div>
 
     <footer class="footer">
-        <p>📍 Dirección del restaurante</p>
-        <p>🕐 Horario de atención</p>
-        <p>📞 Teléfono de contacto</p>
-    </footer>
+    <p id="footer-address"> Dirección del restaurante</p>
+    <p id="footer-hours">🕐 Horario de atención</p>
+    <p id="footer-phone">📞 Teléfono de contacto</p>
+</footer>
 
     <script>
         // ⚙️ CONFIGURACIÓN DE FIREBASE
@@ -115,17 +115,34 @@
         let currentCategory = 'todos';
 
         // Cargar configuración (colores y nombre)
-        db.collection('config').doc('tema').onSnapshot((doc) => {
-            if (doc.exists) {
-                const config = doc.data();
-                const root = document.documentElement;
-                if (config.primaryColor) root.style.setProperty('--primary-color', config.primaryColor);
-                if (config.secondaryColor) root.style.setProperty('--secondary-color', config.secondaryColor);
-                if (config.backgroundColor) root.style.setProperty('--background-color', config.backgroundColor);
-                if (config.restaurantName) document.getElementById('restaurant-name').textContent = config.restaurantName;
-                if (config.tagline) document.getElementById('restaurant-tagline').textContent = config.tagline;
-            }
-        });
+     db.collection('config').doc('tema').onSnapshot((doc) => {
+    if (doc.exists) {
+        const config = doc.data();
+        const root = document.documentElement;
+        
+        // Colores
+        if (config.primaryColor) root.style.setProperty('--primary-color', config.primaryColor);
+        if (config.secondaryColor) root.style.setProperty('--secondary-color', config.secondaryColor);
+        if (config.backgroundColor) root.style.setProperty('--background-color', config.backgroundColor);
+        
+        // Textos
+        if (config.restaurantName) document.getElementById('restaurant-name').textContent = config.restaurantName;
+        if (config.tagline) document.getElementById('restaurant-tagline').textContent = config.tagline;
+        
+        // Logo (imagen o emoji)
+        const logoElement = document.getElementById('restaurant-logo');
+        if (config.logo) {
+            logoElement.innerHTML = `<img src="${config.logo}" style="max-width: 100px; max-height: 100px; border-radius: 50%; background: white; padding: 5px;">`;
+        } else if (config.emoji) {
+            logoElement.textContent = config.emoji;
+        }
+        
+        // Footer
+        if (config.address) document.getElementById('footer-address').textContent = '📍 ' + config.address;
+        if (config.hours) document.getElementById('footer-hours').textContent = '🕐 ' + config.hours;
+        if (config.phone) document.getElementById('footer-phone').textContent = '📞 ' + config.phone;
+    }
+});
 
         // Cargar productos desde Firebase
         db.collection('productos')
