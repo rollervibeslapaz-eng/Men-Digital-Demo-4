@@ -73,6 +73,13 @@
             to { transform: translateX(0); opacity: 1; }
         }
     </style>
+        <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
+        }
+    </script>
 </head>
 <body>
     <div class="login-screen" id="login-screen">
@@ -751,6 +758,31 @@
         async function deleteOrder(id) {
             if (confirm('¿Eliminar este pedido?')) await db.collection('pedidos').doc(id).delete();
         }
+    </script>
+        <button id="install-btn-admin" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #2c3e50; color: white; border: none; padding: 1rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 9999; font-family: 'Poppins', sans-serif;">
+        📲 Instalar Panel
+    </button>
+
+    <script>
+        let deferredPromptAdmin;
+        const installBtnAdmin = document.getElementById('install-btn-admin');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPromptAdmin = e;
+            installBtnAdmin.style.display = 'block';
+        });
+
+        installBtnAdmin.addEventListener('click', async () => {
+            if (deferredPromptAdmin) {
+                deferredPromptAdmin.prompt();
+                const { outcome } = await deferredPromptAdmin.userChoice;
+                if (outcome === 'accepted') {
+                    installBtnAdmin.style.display = 'none';
+                }
+                deferredPromptAdmin = null;
+            }
+        });
     </script>
 </body>
 </html>
