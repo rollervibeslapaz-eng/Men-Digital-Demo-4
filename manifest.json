@@ -1,6 +1,6 @@
 {
   "name": "Menú Digital",
-  "short_name": "Menu",
+  "short_name": "Florería Online",
   "description": "Menú digital interactivo",
   "start_url": "./index.html",
   "display": "standalone",
