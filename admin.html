@@ -57,6 +57,12 @@
         .login-box input { padding: 0.8rem; border: 2px solid #ddd; border-radius: 8px; width: 100%; margin: 1rem 0; font-size: 1rem; }
         .hidden { display: none !important; }
         .loading { text-align: center; padding: 2rem; color: #666; }
+
+        /* Animación para la notificación */
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -128,78 +134,78 @@
         </div>
 
         <!-- TAB CONFIGURACIÓN -->
-        <!-- TAB CONFIGURACIÓN -->
-<div id="tab-config" class="tab-content">
-    <div style="background: white; padding: 1.5rem; border-radius: 10px;">
-        <h3 style="margin-bottom: 1rem;">Apariencia del Menú</h3>
-        
-        <div class="form-group">
-            <label>Logo del Restaurante (imagen)</label>
-            <input type="file" id="cfg-logo-file" accept="image/*">
-            <img id="cfg-logo-preview" style="max-width: 120px; margin-top: 0.5rem; border-radius: 8px; display: none; background: #eee; padding: 5px;">
-            <input type="hidden" id="cfg-logo-url">
-            <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">Recomendado: imagen cuadrada, fondo transparente (PNG)</p>
-        </div>
+        <div id="tab-config" class="tab-content">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+                <h3 style="margin-bottom: 1rem;">Apariencia del Menú</h3>
+                
+                <div class="form-group">
+                    <label>Logo del Restaurante (imagen)</label>
+                    <input type="file" id="cfg-logo-file" accept="image/*">
+                    <img id="cfg-logo-preview" style="max-width: 120px; margin-top: 0.5rem; border-radius: 8px; display: none; background: #eee; padding: 5px;">
+                    <input type="hidden" id="cfg-logo-url">
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.3rem;">Recomendado: imagen cuadrada, fondo transparente (PNG)</p>
+                </div>
 
-        <div class="form-group">
-            <label>Emoji/Ícono del header (opcional)</label>
-            <input type="text" id="cfg-emoji" placeholder="Ej: 🍔, 🍕, ☕" maxlength="4">
-        </div>
+                <div class="form-group">
+                    <label>Emoji/Ícono del header (opcional)</label>
+                    <input type="text" id="cfg-emoji" placeholder="Ej: 🍔, 🍕, ☕" maxlength="4">
+                </div>
 
-        <div class="form-group">
-            <label>Nombre del Restaurante</label>
-            <input type="text" id="cfg-name" placeholder="Mi Restaurante">
-        </div>
+                <div class="form-group">
+                    <label>Nombre del Restaurante</label>
+                    <input type="text" id="cfg-name" placeholder="Mi Restaurante">
+                </div>
 
-        <div class="form-group">
-            <label>Eslogan / Subtítulo</label>
-            <input type="text" id="cfg-tagline" placeholder="Los mejores platillos de la ciudad">
-        </div>
+                <div class="form-group">
+                    <label>Eslogan / Subtítulo</label>
+                    <input type="text" id="cfg-tagline" placeholder="Los mejores platillos de la ciudad">
+                </div>
 
-        <div style="display: flex; gap: 1rem;">
-            <div class="form-group" style="flex: 1;">
-                <label>Color Principal</label>
-                <input type="color" id="cfg-primary" value="#ff6b35">
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Color Principal</label>
+                        <input type="color" id="cfg-primary" value="#ff6b35">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Color Secundario</label>
+                        <input type="color" id="cfg-secondary" value="#2c3e50">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Color de Fondo</label>
+                    <input type="color" id="cfg-background" value="#f8f9fa">
+                </div>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
+                <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
+
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #123, Ciudad">
+                </div>
+
+                <div class="form-group">
+                    <label>Horario</label>
+                    <input type="text" id="cfg-hours" placeholder="Ej: Lun-Dom: 12:00 - 22:00">
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono / WhatsApp</label>
+                    <input type="text" id="cfg-phone" placeholder="Ej: 61 2443 3992">
+                </div>
+
+                <button class="btn-save" onclick="saveConfig()">💾 Guardar Toda la Configuración</button>
             </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Color Secundario</label>
-                <input type="color" id="cfg-secondary" value="#2c3e50">
-            </div>
         </div>
-
-        <div class="form-group">
-            <label>Color de Fondo</label>
-            <input type="color" id="cfg-background" value="#f8f9fa">
-        </div>
-
-        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #eee;">
-        <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
-
-        <div class="form-group">
-            <label>Dirección</label>
-            <input type="text" id="cfg-address" placeholder="Ej: Av. Principal #123, Ciudad">
-        </div>
-
-        <div class="form-group">
-            <label>Horario</label>
-            <input type="text" id="cfg-hours" placeholder="Ej: Lun-Dom: 12:00 - 22:00">
-        </div>
-
-        <div class="form-group">
-            <label>Teléfono / WhatsApp</label>
-            <input type="text" id="cfg-phone" placeholder="Ej: 61 2443 3992">
-        </div>
-
-        <button class="btn-save" onclick="saveConfig()">💾 Guardar Toda la Configuración</button>
     </div>
-</div>
 
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // ⚙️ 1. CONFIGURACIÓN DE FIREBASE (PEGA TUS CREDENCIALES AQUÍ)
+        // ⚙️ 1. CONFIGURACIÓN DE FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyA8CRid7eqnAuZRNZf6TFsN34NPFM7upCM",
             authDomain: "menu-digital-demo-3.firebaseapp.com",
@@ -212,22 +218,39 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ⚙️ 2. CONFIGURACIÓN DE CLOUDINARY (CAMBIA ESTOS 2 VALORES)
-        const CLOUDINARY_CLOUD_NAME = "le531fha"; // <-- Tu Cloud Name
-        const CLOUDINARY_UPLOAD_PRESET = "menu_digital"; // <-- El nombre de tu Upload Preset
+        // ⚙️ 2. CONFIGURACIÓN DE CLOUDINARY
+        const CLOUDINARY_CLOUD_NAME = "le531fha";
+        const CLOUDINARY_UPLOAD_PRESET = "menu_digital";
 
-        // ️ 3. CONFIGURACIÓN DEL PROYECTO (DEBE COINCIDIR CON INDEX.HTML)
+        // ⚙️ 3. CONFIGURACIÓN DEL PROYECTO
         const RESTAURANT_NAME = "Demo Nuevo"; 
         const ADMIN_PASSWORD = "admin123";
 
         let products = [];
         let orders = [];
+        let audioContext = null;
+        let hasInteracted = false;
+
+        // --- TRUCO PARA DESBLOQUEAR AUDIO EN NAVEGADORES ---
+        document.addEventListener('click', () => {
+            if (!hasInteracted) {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                hasInteracted = true;
+            }
+        }, { once: true });
 
         // --- AUTENTICACIÓN ---
         function checkPassword() {
             if (document.getElementById('password-input').value === ADMIN_PASSWORD) {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('admin-panel').classList.remove('hidden');
+                // Forzar interacción para el audio al iniciar sesión
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 loadConfig();
                 loadProducts();
                 loadOrders();
@@ -244,87 +267,141 @@
             document.getElementById(`tab-${tab}`).classList.add('active');
         }
 
+        // --- SISTEMA DE NOTIFICACIÓN Y SONIDO ---
+        function playNotificationSound() {
+            try {
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') audioContext.resume();
+
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // Sonido de "ding-ding" ascendente
+                oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // Do
+                oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.15); // Mi
+                oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.3); // Sol
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.6);
+                
+                if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            } catch (e) { console.log('Sonido no disponible:', e); }
+        }
+
+        function showNewOrderNotification(orderCount) {
+            let notification = document.getElementById('new-order-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.id = 'new-order-notification';
+                notification.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; background: #25d366; color: white;
+                    padding: 1.5rem 2rem; border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+                    z-index: 9999; font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.1rem;
+                    animation: slideIn 0.5s ease-out; display: flex; align-items: center; gap: 1rem;
+                `;
+                document.body.appendChild(notification);
+            }
+            notification.innerHTML = `
+                <span style="font-size: 2rem;">🔔</span>
+                <div>
+                    <div>¡${orderCount} PEDIDO${orderCount > 1 ? 'S' : ''} NUEVO${orderCount > 1 ? 'S' : ''}!</div>
+                    <div style="font-size: 0.85rem; font-weight: 400; opacity: 0.9;">Revisa la lista de pedidos</div>
+                </div>
+            `;
+            playNotificationSound();
+            setTimeout(() => {
+                if (notification && notification.parentNode) {
+                    notification.style.opacity = '0';
+                    notification.style.transition = 'opacity 0.5s';
+                    setTimeout(() => notification.remove(), 500);
+                }
+            }, 8000);
+        }
+
         // --- CONFIGURACIÓN ---
         function loadConfig() {
-    db.collection('config').doc('tema').onSnapshot((doc) => {
-        if (doc.exists) {
-            const data = doc.data();
-            document.getElementById('cfg-name').value = data.restaurantName || '';
-            document.getElementById('cfg-tagline').value = data.tagline || '';
-            document.getElementById('cfg-emoji').value = data.emoji || '🍽️';
-            document.getElementById('cfg-primary').value = data.primaryColor || '#ff6b35';
-            document.getElementById('cfg-secondary').value = data.secondaryColor || '#2c3e50';
-            document.getElementById('cfg-background').value = data.backgroundColor || '#f8f9fa';
-            document.getElementById('cfg-address').value = data.address || '';
-            document.getElementById('cfg-hours').value = data.hours || '';
-            document.getElementById('cfg-phone').value = data.phone || '';
-            document.getElementById('cfg-logo-url').value = data.logo || '';
-            
-            if (data.logo) {
-                document.getElementById('cfg-logo-preview').src = data.logo;
-                document.getElementById('cfg-logo-preview').style.display = 'block';
+            db.collection('config').doc('tema').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    document.getElementById('cfg-name').value = data.restaurantName || '';
+                    document.getElementById('cfg-tagline').value = data.tagline || '';
+                    document.getElementById('cfg-emoji').value = data.emoji || '🍽️';
+                    document.getElementById('cfg-primary').value = data.primaryColor || '#ff6b35';
+                    document.getElementById('cfg-secondary').value = data.secondaryColor || '#2c3e50';
+                    document.getElementById('cfg-background').value = data.backgroundColor || '#f8f9fa';
+                    document.getElementById('cfg-address').value = data.address || '';
+                    document.getElementById('cfg-hours').value = data.hours || '';
+                    document.getElementById('cfg-phone').value = data.phone || '';
+                    document.getElementById('cfg-logo-url').value = data.logo || '';
+                    if (data.logo) {
+                        document.getElementById('cfg-logo-preview').src = data.logo;
+                        document.getElementById('cfg-logo-preview').style.display = 'block';
+                    }
+                }
+            });
+        }
+
+        document.getElementById('cfg-logo-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('cfg-logo-preview').src = e.target.result;
+                    document.getElementById('cfg-logo-preview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        async function saveConfig() {
+            const btn = event.target;
+            btn.textContent = 'Guardando...';
+            btn.disabled = true;
+            const fileInput = document.getElementById('cfg-logo-file');
+            let logoUrl = document.getElementById('cfg-logo-url').value;
+
+            try {
+                if (fileInput.files.length > 0) {
+                    logoUrl = await uploadToCloudinary(fileInput.files[0]);
+                }
+                await db.collection('config').doc('tema').set({
+                    restaurantName: document.getElementById('cfg-name').value,
+                    tagline: document.getElementById('cfg-tagline').value,
+                    emoji: document.getElementById('cfg-emoji').value || '🍽️',
+                    primaryColor: document.getElementById('cfg-primary').value,
+                    secondaryColor: document.getElementById('cfg-secondary').value,
+                    backgroundColor: document.getElementById('cfg-background').value,
+                    address: document.getElementById('cfg-address').value,
+                    hours: document.getElementById('cfg-hours').value,
+                    phone: document.getElementById('cfg-phone').value,
+                    logo: logoUrl
+                }, { merge: true });
+                
+                btn.textContent = '💾 Guardar Toda la Configuración';
+                btn.disabled = false;
+                alert('✅ Configuración guardada. El menú se actualiza al instante.');
+            } catch (error) {
+                console.error(error);
+                btn.textContent = '💾 Guardar Toda la Configuración';
+                btn.disabled = false;
+                alert('Error al guardar: ' + error.message);
             }
         }
-    });
-}
-document.getElementById('cfg-logo-file').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('cfg-logo-preview').src = e.target.result;
-            document.getElementById('cfg-logo-preview').style.display = 'block';
-        };
-        reader.readAsDataURL(file);
-    }
-});
-async function saveConfig() {
-    const btn = event.target;
-    btn.textContent = 'Guardando...';
-    btn.disabled = true;
-    
-    const fileInput = document.getElementById('cfg-logo-file');
-    let logoUrl = document.getElementById('cfg-logo-url').value;
 
-    try {
-        // Subir logo si hay uno nuevo
-        if (fileInput.files.length > 0) {
-            logoUrl = await uploadToCloudinary(fileInput.files[0]);
-        }
-
-        await db.collection('config').doc('tema').set({
-            restaurantName: document.getElementById('cfg-name').value,
-            tagline: document.getElementById('cfg-tagline').value,
-            emoji: document.getElementById('cfg-emoji').value || '🍽️',
-            primaryColor: document.getElementById('cfg-primary').value,
-            secondaryColor: document.getElementById('cfg-secondary').value,
-            backgroundColor: document.getElementById('cfg-background').value,
-            address: document.getElementById('cfg-address').value,
-            hours: document.getElementById('cfg-hours').value,
-            phone: document.getElementById('cfg-phone').value,
-            logo: logoUrl
-        }, { merge: true });
-        
-        btn.textContent = '💾 Guardar Toda la Configuración';
-        btn.disabled = false;
-        alert('✅ Configuración guardada. El menú se actualiza al instante.');
-    } catch (error) {
-        console.error(error);
-        btn.textContent = '💾 Guardar Toda la Configuración';
-        btn.disabled = false;
-        alert('Error al guardar: ' + error.message);
-    }
-}
         // --- CLOUDINARY UPLOAD ---
         async function uploadToCloudinary(file) {
             const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
             const formData = new FormData();
             formData.append("file", file);
             formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-            
             const response = await fetch(url, { method: "POST", body: formData });
             const data = await response.json();
-            
             if (data.error) throw new Error(data.error.message);
             return data.secure_url;
         }
@@ -341,7 +418,6 @@ async function saveConfig() {
         function renderProducts() {
             const container = document.getElementById('products-container');
             container.innerHTML = products.length === 0 ? '<p class="loading">No hay productos aún. ¡Agrega el primero!</p>' : '';
-            
             products.forEach(p => {
                 const div = document.createElement('div');
                 div.className = 'product-card';
@@ -386,10 +462,7 @@ async function saveConfig() {
             const fileInput = document.getElementById('prod-image-file');
             let imageUrl = document.getElementById('prod-image-url').value;
 
-            if (!name || !price || !category) {
-                alert('Por favor completa nombre, precio y categoría.');
-                return;
-            }
+            if (!name || !price || !category) { alert('Por favor completa nombre, precio y categoría.'); return; }
 
             btn.textContent = 'Subiendo y Guardando...';
             btn.disabled = true;
@@ -402,8 +475,7 @@ async function saveConfig() {
                 }
 
                 const productData = {
-                    restaurant: RESTAURANT_NAME,
-                    name, description: desc, price, category, image: imageUrl, available,
+                    restaurant: RESTAURANT_NAME, name, description: desc, price, category, image: imageUrl, available,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
@@ -428,7 +500,6 @@ async function saveConfig() {
         function editProduct(id) {
             const p = products.find(x => x.id === id);
             if (!p) return;
-            
             document.getElementById('edit-product-id').value = p.id;
             document.getElementById('prod-name').value = p.name;
             document.getElementById('prod-desc').value = p.description || '';
@@ -436,12 +507,10 @@ async function saveConfig() {
             document.getElementById('prod-category').value = p.category;
             document.getElementById('prod-available').checked = p.available;
             document.getElementById('prod-image-url').value = p.image || '';
-            
             if (p.image) {
                 document.getElementById('prod-image-preview').src = p.image;
                 document.getElementById('prod-image-preview').style.display = 'block';
             }
-
             document.getElementById('btn-save-product').textContent = 'Actualizar Producto';
             document.getElementById('btn-cancel-edit').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -457,7 +526,6 @@ async function saveConfig() {
             document.getElementById('prod-image-file').value = '';
             document.getElementById('prod-image-url').value = '';
             document.getElementById('prod-image-preview').style.display = 'none';
-            
             document.getElementById('btn-save-product').textContent = 'Guardar Producto';
             document.getElementById('btn-cancel-edit').style.display = 'none';
         }
@@ -475,9 +543,16 @@ async function saveConfig() {
         // --- PEDIDOS ---
         function loadOrders() {
             db.collection('pedidos').where('restaurant', '==', RESTAURANT_NAME).orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+                const previousNewCount = orders.filter(o => o.status === 'nuevo').length;
                 orders = [];
                 snapshot.forEach((doc) => orders.push({ id: doc.id, ...doc.data() }));
                 renderOrders();
+                
+                // Detectar si llegaron pedidos nuevos
+                const currentNewCount = orders.filter(o => o.status === 'nuevo').length;
+                if (currentNewCount > previousNewCount && previousNewCount >= 0) {
+                    showNewOrderNotification(currentNewCount);
+                }
             });
         }
 
