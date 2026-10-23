@@ -58,6 +58,13 @@
         .loading-message { text-align: center; padding: 3rem; color: #666; font-size: 1.1rem; }
         @media (max-width: 768px) { .menu-grid { grid-template-columns: 1fr; } }
     </style>
+        <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff6b35">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js'); });
+        }
+    </script>
 </head>
 <body>
     <header class="header">
@@ -291,6 +298,31 @@
         function closeSuccess() {
             document.getElementById('success-message').classList.remove('show');
         }
+    </script>
+        <button id="install-btn" style="display: none; position: fixed; bottom: 20px; right: 20px; background: #ff6b35; color: white; border: none; padding: 1rem 1.5rem; border-radius: 50px; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 9999; font-family: 'Poppins', sans-serif;">
+        📲 Instalar App
+    </button>
+
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installBtn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
     </script>
 </body>
 </html>
